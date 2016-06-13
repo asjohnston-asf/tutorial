@@ -1,6 +1,7 @@
 from .models import Snippet
 from .serializers import SnippetSerializer
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,19 +28,13 @@ class SnippetDetail(APIView):
     """
     Retrieve, update, or delete a code snippet.
     """
-    def get_object(self, pk):
-        try:
-            return Snippet.objects.get(pk=pk)
-        except Snippet.DoesNotExist:
-            raise Http404
-
     def get(self, request, pk, format=None):
-        snippet = self.get_object(pk)
+        snippet = get_object_or_404(Snippet, pk=pk)
         serializer = SnippetSerializer(snippet)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
+        snippet = get_object_or_404(Snippet, pk=pk)
         serializer = SnippetSerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -47,7 +42,7 @@ class SnippetDetail(APIView):
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        snippet = self.get_object(pk)
+        snippet = get_object_or_404(Snippet, pk=pk)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
